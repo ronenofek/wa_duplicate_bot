@@ -1,0 +1,11 @@
+# ---- runtime / cache ----
+wadata/
+history.json        # daily duplicate history
+
+# ---- Node standard ----
+node_modules/
+npm-debug.log*
+.DS_Store
+
+# ---- Playwright browsers (optional but big) ----
+ms-playwright/
