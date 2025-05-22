@@ -1,0 +1,48 @@
+[Tue 05/20/2025 14:06:09.30] Starting WA‑dup bot 
+Loaded 4 keys from history.json
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+browserType.launchPersistentContext: Executable doesn't exist at C:\WINDOWS\system32\config\systemprofile\AppData\Local\ms-playwright\chromium-1169\chrome-win\chrome.exe
+╔═════════════════════════════════════════════════════════════════════════╗
+║ Looks like Playwright Test or Playwright was just installed or updated. ║
+║ Please run the following command to download new browsers:              ║
+║                                                                         ║
+║     npx playwright install                                              ║
+║                                                                         ║
+║ <3 Playwright Team                                                      ║
+╚═════════════════════════════════════════════════════════════════════════╝
+    at async C:\Users\ronen\OneDrive\Mine\Projects\wa_duplicate_bot\bot.js:114:19 {
+  name: 'Error'
+}
+
+Node.js v22.14.0
+[Tue 05/20/2025 14:06:09.95] Bot.exe exited with code 1 
+[Tue 05/20/2025 14:15:32.64] Starting WA‑dup bot 
+Loaded 5 keys from history.json
+[14:15:35] WhatsApp ready — scan QR if required.
+[14:15:45] Group opened: ער״ן Offline
+[14:18:02] Loop error page.$$: Target page, context or browser has been closed
+    at Timeout._onTimeout (C:\Users\ronen\OneDrive\Mine\Projects\wa_duplicate_bot\bot.js:137:31)
+[14:18:06] Loop error page.$$: Target page, context or browser has been closed
+    at Timeout._onTimeout (C:\Users\ronen\OneDrive\Mine\Projects\wa_duplicate_bot\bot.js:137:31)
+[Tue 05/20/2025 14:33:17.87] Starting WA‑dup bot 
+Loaded 7 keys from history.json
+[14:33:19] WhatsApp ready — scan QR if required.
+[14:33:28] Group opened: ער״ן Offline
+[14:34:28] No chat messages detected within 60s; proceeding to listen for new messages.
+node:internal/process/promises:394
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+page.waitForSelector: Timeout 60000ms exceeded.
+Call log:
+[2m  - waiting for locator('div[contenteditable="true"][data-tab="10"]') to be visible[22m
+
+    at C:\Users\ronen\OneDrive\Mine\Projects\wa_duplicate_bot\bot.js:154:12 {
+  name: 'TimeoutError'
+}
+
+Node.js v22.14.0
+[Tue 05/20/2025 14:35:28.80] Bot.exe exited with code 1 

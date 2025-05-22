@@ -14,17 +14,20 @@
   -----------------
   Watches a single WhatsApp Web group. Tracks **1‑ to 3‑word**
   messages for 24 hours. If a duplicate appears, replies in Hebrew
-  with all previous times (annotated **ET**).
+  with all previous times (annotated **ET**). Falls back to installed
+  Chrome if bundled Chromium is missing under the service account.
 
-  NEW IN THIS VERSION (2025‑05‑17, night)
-  ---------------------------------------
+  NEW IN THIS VERSION (2025‑05‑20)
+  -------------------------------
   • Flat‑file persistence (`history.json`).
   • Matches 1–3‑word messages.
   • `processedIds` Set to avoid DOM re‑render duplicates.
-  • **Times in reply now end with "(ET)"** to clarify Eastern Time.
+  • **Times in reply end with "(ET)"**.
+  • **Browser fallback**: if bundled Chromium isn’t found (under SYSTEM),
+    automatically switch to the local Chrome channel.
 
-  QUICK START (unchanged)
-  -----------------------
+  QUICK START
+  -----------
     npm i playwright dotenv
     npx playwright install chromium
 
@@ -32,7 +35,7 @@
       GROUP_NAME="My Group"
       USER_DATA="./wadata"
       CHECK_EVERY_MS=4000
-      BROWSER_CHANNEL=chrome
+      BROWSER_CHANNEL=chromium   # auto‑fallback to chrome if needed
 
   ------------------------------------------------------------------- */
 
@@ -52,7 +55,7 @@ if (!GROUP_NAME) {
   process.exit(1);
 }
 
-/* ----------------------- history Map with persistence ---------------------- */
+// ----------------------- history Map with persistence ----------------------
 const history = new Map();
 try {
   if (fs.existsSync(PERSIST_PATH)) {
@@ -77,29 +80,31 @@ function persist() {
   }
 }
 
-/* ----------------------------- helpers ----------------------------- */
+// ----------------------------- helpers -----------------------------
 let lastSeenId = null;
 const processedIds = new Set();
 const MAX_IDS      = 2000;
-
 const nowStr = () => new Date().toLocaleTimeString('he-IL', { hour12: false });
 
 function buildReply(msg, times) {
-  const formattedTimes = times
+  const formatted = times
     .sort((a, b) => b - a)
-    .map(t => t.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', hour12: false }))
+    .map(t => t.toLocaleTimeString('he-IL', {
+      hour: '2-digit', minute: '2-digit', hour12: false,
+      timeZone: 'Asia/Jerusalem'   // display in Israel time (ILT)
+    }))
     .join(' וב');
-  return `ההודעה <${msg}> הופיעה היום גם ב${formattedTimes} (ET)`;
+  return `ההודעה <${msg}> הופיעה ביממה האחרונה בשעות ${formatted} (ILT)`;
 }
 
 function prune() {
   const cutoff = Date.now() - DAY_MS;
   for (const [k, arr] of history) {
     const left = arr.filter(t => t.getTime() >= cutoff);
-    if (left.length) history.set(k, left); else history.delete(k);
+    if (left.length) history.set(k, left);
+    else history.delete(k);
   }
   persist();
-
   if (processedIds.size > MAX_IDS) {
     const excess = processedIds.size - MAX_IDS;
     processedIds.forEach(id => {
@@ -109,14 +114,29 @@ function prune() {
   }
 }
 
-/* ----------------------------- main -------------------------------- */
+// ----------------------------- main --------------------------------
 (async () => {
-  const browser = await chromium.launchPersistentContext(USER_DATA, {
-    headless: false,
-    channel: BROWSER_CHANNEL !== 'chromium' ? BROWSER_CHANNEL : undefined,
-    viewport: { width: 1280, height: 900 }
-  });
-
+  let browser;
+  try {
+    browser = await chromium.launchPersistentContext(USER_DATA, {
+      headless: true,
+      channel: BROWSER_CHANNEL !== 'chromium' ? BROWSER_CHANNEL : undefined,
+      locale: 'he-IL',                // format in Hebrew locale
+      timezoneId: 'Asia/Jerusalem',   // ensure browser uses Israeli time zone
+      viewport: { width: 1280, height: 900 },
+    });
+  } catch (err) {
+    if (err.message.includes("Executable doesn't exist")) {
+      console.warn(`[${nowStr()}] Bundled Chromium missing; falling back to Chrome channel`);
+      browser = await chromium.launchPersistentContext(USER_DATA, {
+        headless: true,                    // run headless when falling back as well
+        channel: 'chrome',
+        locale: 'he-IL',                    // ensure Hebrew locale
+        timezoneId: 'Asia/Jerusalem',      // ensure Israel time zone
+        viewport: { width: 1280, height: 900 }
+      });
+    } else throw err;
+  }
   const [page] = browser.pages();
   await page.goto('https://web.whatsapp.com');
   console.log(`[${nowStr()}] WhatsApp ready — scan QR if required.`);
@@ -130,7 +150,14 @@ function prune() {
   await page.keyboard.press('Enter');
   console.log(`[${nowStr()}] Group opened: ${GROUP_NAME}`);
 
+  // Wait for existing chat messages or fallback to the message input box
+try {
   await page.waitForSelector('div[data-id]', { timeout: 60000 });
+} catch {
+  console.warn(`[${nowStr()}] No chat messages detected within 60s; proceeding to listen for new messages.`);
+}
+// Ensure the compose box is ready before starting the loop
+await page.waitForSelector('div[contenteditable="true"][data-tab="10"]', { timeout: 60000 });
 
   setInterval(async () => {
     try {
@@ -154,9 +181,9 @@ function prune() {
       if (dpp) {
         const m = dpp.match(/\[(\d{2}):(\d{2})/);
         if (m) {
-          const [h, mnt] = m.slice(1).map(Number);
+          const [h, mn] = m.slice(1).map(Number);
           const now = new Date();
-          msgDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, mnt);
+          msgDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, mn);
         }
       }
 
