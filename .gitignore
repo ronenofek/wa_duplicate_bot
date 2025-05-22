@@ -9,3 +9,6 @@ npm-debug.log*
 
 # ---- Playwright browsers (optional but big) ----
 ms-playwright/
+
+# ---- ssh) ----
+.ssh
