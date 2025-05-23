@@ -49,6 +49,8 @@ const CHECK_EVERY_MS  = Number(process.env.CHECK_EVERY_MS) || 4000;
 const BROWSER_CHANNEL = process.env.BROWSER_CHANNEL || 'chromium';
 const DAY_MS          = 24 * 60 * 60 * 1000;
 const PERSIST_PATH    = './history.json';
+// –––––– New env toggle for headless mode ––––––
+const HEADLESS        = process.env.HEADLESS === 'false' ? false : true;
 
 if (!GROUP_NAME) {
   console.error('Missing GROUP_NAME in .env');
@@ -119,7 +121,7 @@ function prune() {
   let browser;
   try {
     browser = await chromium.launchPersistentContext(USER_DATA, {
-      headless: true,
+      headless: HEADLESS,
       channel: BROWSER_CHANNEL !== 'chromium' ? BROWSER_CHANNEL : undefined,
       locale: 'he-IL',                // format in Hebrew locale
       timezoneId: 'Asia/Jerusalem',   // ensure browser uses Israeli time zone
@@ -129,7 +131,7 @@ function prune() {
     if (err.message.includes("Executable doesn't exist")) {
       console.warn(`[${nowStr()}] Bundled Chromium missing; falling back to Chrome channel`);
       browser = await chromium.launchPersistentContext(USER_DATA, {
-        headless: true,                    // run headless when falling back as well
+        headless: HEADLESS,                    // run headless when falling back as well
         channel: 'chrome',
         locale: 'he-IL',                    // ensure Hebrew locale
         timezoneId: 'Asia/Jerusalem',      // ensure Israel time zone
