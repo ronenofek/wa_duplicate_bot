@@ -14,7 +14,11 @@
   -----------------
   Watches a single WhatsApp Web group. Tracks **1- to 3-word**
   messages for 24 hours (based on Israel local date). If a duplicate
+<<<<<<< HEAD
+  appears, replies in Hebrew with the timestamp list in Israel time. 
+=======
   appears, replies in Hebrew with the timestamp list in Israel time.
+>>>>>>> 0cd96b3b2858b0071ef3054feea271710bfcec75
 */
 
 const fs = require('fs');
