@@ -1,0 +1,43 @@
+{
+  "cookies": [
+    {
+      "name": "wa_ul",
+      "value": "9ce827af-37bf-4a17-8e5d-53b65532c093",
+      "domain": ".web.whatsapp.com",
+      "path": "/",
+      "expires": 1756826076.524031,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "wa_web_lang_pref",
+      "value": "en_US",
+      "domain": ".web.whatsapp.com",
+      "path": "/",
+      "expires": 1751481943,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://web.whatsapp.com",
+      "localStorage": [
+        {
+          "name": "WALangPhonePref",
+          "value": "\"en_US\""
+        },
+        {
+          "name": "WAUnknownID",
+          "value": "\"unknown-7034822426\""
+        },
+        {
+          "name": "Session",
+          "value": "e4ifxo:1749062777351"
+        }
+      ]
+    }
+  ]
+}
